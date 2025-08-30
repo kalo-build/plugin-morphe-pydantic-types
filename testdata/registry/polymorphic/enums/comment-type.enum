@@ -1,0 +1,6 @@
+name: CommentType
+type: String
+entries:
+  Public: PUBLIC
+  Private: PRIVATE
+  Internal: INTERNAL

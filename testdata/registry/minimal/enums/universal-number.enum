@@ -1,0 +1,5 @@
+name: UniversalNumber
+type: Float
+entries:
+  Pi: 3.1415926535
+  Euler: 2.7182818285

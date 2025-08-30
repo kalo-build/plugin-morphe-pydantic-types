@@ -1,0 +1,31 @@
+{
+  "inputPath": "./testdata/registry/minimal",
+  "outputPath": "./output-test",
+  "config": {
+    "pythonVersion": "3.11",
+    "usePydantic": true,
+    "pydanticV2": false,
+    "addTypeHints": true,
+    "generateInit": true,
+    "indentSize": 2,
+    "enums": {
+      "generateStrMethod": true,
+      "useStrEnum": false
+    },
+    "models": {
+      "useField": true,
+      "generateExamples": false,
+      "useValidators": false
+    },
+    "structures": {
+      "useDataclass": false,
+      "generateSlots": false
+    },
+    "entities": {
+      "generateRepository": false,
+      "lazyLoadingStyle": "async",
+      "includeValidation": false
+    }
+  },
+  "verbose": true
+}
