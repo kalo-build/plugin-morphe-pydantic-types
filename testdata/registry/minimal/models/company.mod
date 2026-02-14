@@ -2,8 +2,6 @@ name: Company
 fields:
   ID:
     type: AutoIncrement
-    attributes:
-      - mandatory
   Name:
     type: String
   TaxID:

@@ -2,8 +2,6 @@ name: Person
 fields:
   ID:
     type: AutoIncrement
-    attributes:
-      - mandatory
   FirstName:
     type: String
   LastName:

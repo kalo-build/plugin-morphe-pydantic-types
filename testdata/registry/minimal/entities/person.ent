@@ -4,7 +4,6 @@ fields:
     type: Person.ID
     attributes:
       - immutable
-      - mandatory
   LastName:
     type: Person.LastName
   Nationality:

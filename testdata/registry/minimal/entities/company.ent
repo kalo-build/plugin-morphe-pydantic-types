@@ -4,7 +4,6 @@ fields:
     type: Company.ID
     attributes:
       - immutable
-      - mandatory
   Name:
     type: Company.Name
   TaxID:

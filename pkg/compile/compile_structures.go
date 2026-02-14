@@ -36,8 +36,9 @@ func CompileStructure(structure yaml.Structure, r *registry.Registry) (*formatde
 		}
 
 		formatField := formatdef.Field{
-			Name: fieldName,
-			Type: fieldType,
+			Name:       fieldName,
+			Type:       fieldType,
+			IsOptional: hasAttribute(field.Attributes, "optional"),
 		}
 		formatStruct.Fields = append(formatStruct.Fields, formatField)
 	}
@@ -125,7 +126,11 @@ func generateStructureContent(structure *formatdef.Struct, config PydanticConfig
 	for _, field := range structure.Fields {
 		fieldName := SanitizePythonIdentifier(formatdef.ToSnakeCase(field.Name))
 		fieldType := field.Type.GetName()
-		cb.Line("%s: %s", fieldName, fieldType)
+		if field.IsOptional {
+			cb.Line("%s: Optional[%s] = None", fieldName, fieldType)
+		} else {
+			cb.Line("%s: %s", fieldName, fieldType)
+		}
 	}
 
 	// Add Pydantic config if using enums

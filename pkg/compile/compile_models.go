@@ -13,6 +13,16 @@ import (
 	"github.com/kalo-build/plugin-morphe-pydantic-types/pkg/typemap"
 )
 
+// hasAttribute checks if a given attribute is present in the attributes list.
+func hasAttribute(attributes []string, target string) bool {
+	for _, attr := range attributes {
+		if attr == target {
+			return true
+		}
+	}
+	return false
+}
+
 // resolvePolymorphicThrough looks up the model that has the polymorphic relationship
 func resolvePolymorphicThrough(through string, r *registry.Registry) (string, error) {
 	// Find the model that has this polymorphic relationship
@@ -46,8 +56,9 @@ func CompileModel(model yaml.Model, r *registry.Registry) (*formatdef.Struct, er
 		field := model.Fields[fieldName]
 		fieldType := typemap.GetFieldType(field.Type)
 		formatField := formatdef.Field{
-			Name: fieldName,
-			Type: fieldType,
+			Name:       fieldName,
+			Type:       fieldType,
+			IsOptional: hasAttribute(field.Attributes, "optional"),
 		}
 		formatStruct.Fields = append(formatStruct.Fields, formatField)
 	}
@@ -290,8 +301,8 @@ func generateModelContent(model *formatdef.Struct, config PydanticConfig, morphe
 					} else {
 						cb.Line("%s: str", fieldName)
 					}
-				} else if len(fieldName) > 3 && (fieldName[len(fieldName)-3:] == "_id" || strings.HasSuffix(fieldName, "_type")) {
-					// Make foreign keys and type fields optional by default
+				} else if field.IsOptional || (len(fieldName) > 3 && (fieldName[len(fieldName)-3:] == "_id" || strings.HasSuffix(fieldName, "_type"))) {
+					// Optional attribute or foreign key/type fields
 					cb.Line("%s: Optional[%s] = None", fieldName, fieldType)
 				} else {
 					cb.Line("%s: %s", fieldName, fieldType)

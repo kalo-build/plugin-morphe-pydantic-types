@@ -16,15 +16,9 @@ type Struct struct {
 
 // Field represents a field in a structure
 type Field struct {
-	Name string
-	Type Type
-	// TODO: Add format-specific field properties
-	// Examples:
-	// - IsReadonly bool
-	// - IsOptional bool
-	// - AccessModifier string (public/private/protected)
-	// - DefaultValue interface{}
-	// - Decorators []string
+	Name       string
+	Type       Type
+	IsOptional bool // When true, generates Optional[T] = None in Python
 }
 
 // GetDefinition returns the full struct definition in the target format

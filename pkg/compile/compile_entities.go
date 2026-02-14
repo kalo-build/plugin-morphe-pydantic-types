@@ -36,8 +36,9 @@ func CompileEntity(entity yaml.Entity, r *registry.Registry) (*formatdef.Struct,
 		}
 
 		formatField := formatdef.Field{
-			Name: fieldName,
-			Type: fieldType,
+			Name:       fieldName,
+			Type:       fieldType,
+			IsOptional: hasAttribute(field.Attributes, "optional"),
 		}
 		formatStruct.Fields = append(formatStruct.Fields, formatField)
 	}
@@ -332,8 +333,8 @@ func generateEntityContent(entity *formatdef.Struct, morpheEntity yaml.Entity, c
 			} else if strings.HasPrefix(fieldType, "Optional[") || strings.HasPrefix(fieldType, "List[") || strings.Contains(fieldType, "Union[") {
 				// Relationship fields or Union types
 				cb.Line("%s: %s = None", fieldName, fieldType)
-			} else if strings.HasSuffix(fieldName, "_id") || strings.HasSuffix(fieldName, "_type") {
-				// Foreign keys and type fields are optional
+			} else if field.IsOptional || strings.HasSuffix(fieldName, "_id") || strings.HasSuffix(fieldName, "_type") {
+				// Optional attribute, foreign keys, or type fields
 				cb.Line("%s: Optional[%s] = None", fieldName, fieldType)
 			} else {
 				cb.Line("%s: %s", fieldName, fieldType)
