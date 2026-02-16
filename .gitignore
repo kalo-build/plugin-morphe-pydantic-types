@@ -34,3 +34,6 @@ go.work.sum
 # Generated output (temporary development files)
 output/
 output-test/
+# WASM build output
+*.wasm
+dist/
