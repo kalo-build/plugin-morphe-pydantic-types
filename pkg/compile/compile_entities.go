@@ -58,15 +58,18 @@ func CompileEntity(entity yaml.Entity, r *registry.Registry) (*formatdef.Struct,
 			// Handle polymorphic relationships
 			if yamlops.IsRelationPoly(relationType) && yamlops.IsRelationFor(relationType) && yamlops.IsRelationOne(relationType) {
 				// ForOnePoly: Add type and id fields
+				relOptional := hasAttribute(relation.Attributes, "optional")
 				typeField := formatdef.Field{
-					Name: formatdef.ToSnakeCase(relatedName + "_type"),
-					Type: formatdef.TypeString,
+					Name:       formatdef.ToSnakeCase(relatedName + "_type"),
+					Type:       formatdef.TypeString,
+					IsOptional: relOptional,
 				}
 				formatStruct.Fields = append(formatStruct.Fields, typeField)
 
 				idField := formatdef.Field{
-					Name: formatdef.ToSnakeCase(relatedName + "_id"),
-					Type: formatdef.TypeString,
+					Name:       formatdef.ToSnakeCase(relatedName + "_id"),
+					Type:       formatdef.TypeString,
+					IsOptional: relOptional,
 				}
 				formatStruct.Fields = append(formatStruct.Fields, idField)
 			} else if yamlops.IsRelationPoly(relationType) {
@@ -76,8 +79,9 @@ func CompileEntity(entity yaml.Entity, r *registry.Registry) (*formatdef.Struct,
 			} else if yamlops.IsRelationFor(relationType) && yamlops.IsRelationOne(relationType) {
 				// Regular ForOne: Add foreign key field
 				fkField := formatdef.Field{
-					Name: formatdef.ToSnakeCase(relatedName + "_id"),
-					Type: formatdef.TypeString,
+					Name:       formatdef.ToSnakeCase(relatedName + "_id"),
+					Type:       formatdef.TypeString,
+					IsOptional: hasAttribute(relation.Attributes, "optional"),
 				}
 				formatStruct.Fields = append(formatStruct.Fields, fkField)
 			}
@@ -124,8 +128,9 @@ func CompileEntity(entity yaml.Entity, r *registry.Registry) (*formatdef.Struct,
 			}
 
 			navField := formatdef.Field{
-				Name: navFieldName,
-				Type: navType,
+				Name:       navFieldName,
+				Type:       navType,
+				IsOptional: hasAttribute(relation.Attributes, "optional"),
 			}
 			formatStruct.Fields = append(formatStruct.Fields, navField)
 		}
