@@ -44,6 +44,12 @@ func GetFieldType(fieldType yaml.ModelFieldType) formatdef.Type {
 
 // MorpheStructureFieldToFormatType maps structure field types to format types
 func MorpheStructureFieldToFormatType(fieldType yaml.StructureFieldType, fieldName string, r *registry.Registry) (formatdef.Type, error) {
+	// Explicit structure composition: field type references another structure
+	if r != nil {
+		if _, exists := r.GetAllStructures()[string(fieldType)]; exists {
+			return formatdef.BasicType{Name: string(fieldType)}, nil
+		}
+	}
 	// Structure fields use the same type mappings as model fields
 	modelFieldType := yaml.ModelFieldType(fieldType)
 	return GetFieldType(modelFieldType), nil

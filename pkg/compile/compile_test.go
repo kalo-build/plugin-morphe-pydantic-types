@@ -8,9 +8,12 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/kalo-build/go-util/assertfile"
+	"github.com/kalo-build/morphe-go/pkg/registry"
+	"github.com/kalo-build/morphe-go/pkg/yaml"
 	rcfg "github.com/kalo-build/morphe-go/pkg/registry/cfg"
 	"github.com/kalo-build/plugin-morphe-pydantic-types/internal/testutils"
 	"github.com/kalo-build/plugin-morphe-pydantic-types/pkg/compile"
+	"github.com/kalo-build/plugin-morphe-pydantic-types/pkg/formatdef"
 )
 
 type CompileTestSuite struct {
@@ -269,4 +272,40 @@ else:
 	// Note: In a real test environment, you would execute this script
 	// For now, we just verify the files were created
 	suite.FileExists(testScriptPath)
+}
+
+// TestCompileStructure_StructureComposition verifies that a structure field referencing another structure
+// is resolved via the registry and yields BasicType with the structure name.
+func (suite *CompileTestSuite) TestCompileStructure_StructureComposition() {
+	lineItemStructure := yaml.Structure{
+		Name: "InvoiceLineItem",
+		Fields: map[string]yaml.StructureField{
+			"Amount": {Type: yaml.StructureFieldTypeInteger},
+		},
+	}
+	invoiceStructure := yaml.Structure{
+		Name: "Invoice",
+		Fields: map[string]yaml.StructureField{
+			"ID":        {Type: yaml.StructureFieldTypeString},
+			"LineItem":  {Type: "InvoiceLineItem", Attributes: []string{"optional"}},
+		},
+	}
+
+	r := registry.NewRegistry()
+	r.SetStructure("InvoiceLineItem", lineItemStructure)
+	r.SetStructure("Invoice", invoiceStructure)
+
+	compiled, err := compile.CompileStructure(invoiceStructure, r)
+	suite.NoError(err)
+	suite.NotNil(compiled)
+	suite.Equal("Invoice", compiled.Name)
+	suite.Len(compiled.Fields, 2)
+
+	suite.Equal("ID", compiled.Fields[0].Name)
+	suite.Equal("LineItem", compiled.Fields[1].Name)
+	suite.True(compiled.Fields[1].IsOptional)
+
+	lineItemType, ok := compiled.Fields[1].Type.(formatdef.BasicType)
+	suite.True(ok, "LineItem type should be BasicType (structure reference)")
+	suite.Equal("InvoiceLineItem", lineItemType.Name)
 }
